@@ -214,17 +214,9 @@ class TokenInterceptor: YFGRequestInterceptor {
         return mutableRequest
     }
 }
-
-// Then, create your service with the custom interceptor.
-let myAuthManager = AuthManager()
-let customInterceptor = TokenInterceptor(authManager: myAuthManager)
-let authenticatedNetworkService = YFGNetworkService(
-    environment: APIEnvironment(),
-    interceptor: customInterceptor
-)
 ```
 
 ## License
 
-YFGNetwork is released under the MIT license. See [LICENSE](https://www.google.com/search?q=LICENSE "null") for details.
+YFGNetwork is released under the MIT license. See [LICENSE](https://github.com/yefga/YFGNetwork/tree/development) for details.
 
