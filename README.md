@@ -1,3 +1,15 @@
+
+<p align="center">
+
+<p align="center">
+<a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/swift-5.5+-brightgreen.svg"/></a>
+<a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/SPM-ready-orange.svg"></a>
+<a href="#"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+<a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/platform-macos%20|%20iOS-red.svg"/></a>
+
+</p>
+
+
 A modern, clean, and testable networking layer for iOS and macOS, built with Swift's `async/await`.
 
 ## Overview
