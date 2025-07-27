@@ -5,7 +5,8 @@
 <a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/swift-5.5+-brightgreen.svg"/></a>
 <a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/SPM-ready-orange.svg"></a>
 <a href="#"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
-<a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/platform-macos%20|%20iOS-red.svg"/></a>
+<a href="https://en.wikipedia.org/wiki/IOS_13"><img src="https://img.shields.io/badge/iOS-13-blue.svg"></a>
+<a href="https://www.apple.com/id/macos/macos-sequoia/"><img src="https://img.shields.io/badge/macOS-15-purple.svg"></a>
 
 </p>
 
@@ -16,34 +17,29 @@ A modern, clean, and testable networking layer for iOS and macOS, built with Swi
 
 YFGNetwork is a powerful yet lightweight networking framework designed to abstract away the complexities of `URLSession`. It provides a type-safe way to define API endpoints and handles common networking tasks like request interception, response validation, and automatic retries. Its protocol-oriented design makes it incredibly easy to test and extend.
 
+
 ## Features
 
-- ✅ **Modern Concurrency:** Built entirely on `async/await` for clean, readable asynchronous code.
+✅ **Modern Concurrency:** Built entirely on `async/await` for clean, readable asynchronous code.
     
-- ✅ **Type-Safe Endpoints:** Define your API endpoints safely using enums.
+✅ **Type-Safe Endpoints:** Define your API endpoints safely using enums.
     
-- ✅ **SOLID Principles:** Designed for testability and scalability from the ground up.
+✅ **SOLID Principles:** Designed for testability and scalability from the ground up.
     
-- ✅ **Request Interception:** Easily add authentication tokens or common headers to requests.
+✅ **Request Interception:** Easily add authentication tokens or common headers to requests.
     
-- ✅ **Response Validation:** Automatic validation of status codes and response data.
+✅ **Response Validation:** Automatic validation of status codes and response data.
     
-- ✅ **Automatic Retries:** Configurable retry policies for handling transient network failures.
+✅ **Automatic Retries:** Configurable retry policies for handling transient network failures.
     
-- ✅ **Detailed Logging:** A built-in logger for easy debugging of network traffic.
+✅ **Detailed Logging:** A built-in logger for easy debugging of network traffic.
     
-- ✅ **Multipart & Data Uploads:** Full support for complex uploads.
+✅ **Multipart & Data Uploads:** Full support for complex uploads.
     
-- ✅ **File Downloads:** Simple API for downloading files directly to a destination.
+✅ **File Downloads:** Simple API for downloading files directly to a destination.
     
 
-## Requirements
 
-- iOS 13.0+
-    
-- macOS 10.15+
-    
-- Swift 5.5+
     
 
 ## Installation
@@ -99,19 +95,6 @@ Create an enum that conforms to `YFGEndpoint`. This is where you define all the 
 
 ```
 import YFGNetwork
-
-// First, define the data models you expect from the API.
-struct UserProfile: Decodable {
-    let id: String
-    let name: String
-    let email: String
-}
-
-struct PublicPost: Decodable {
-    let id: Int
-    let title: String
-    let body: String
-}
 
 // Next, define the endpoints.
 enum MyAPI {
@@ -185,8 +168,21 @@ let networkService = YFGNetworkService(environment: APIEnvironment())
 
 ### 4. Make a Request
 
-Use an `async` function to call the service and handle the response.
+First, define the data models you expect from the API.
+```
+struct UserProfile: Decodable {
+    let id: String
+    let name: String
+    let email: String
+}
 
+struct PublicPost: Decodable {
+    let id: Int
+    let title: String
+    let body: String
+}
+```
+Use an `async` function to call the service and handle the response.
 ```
 func fetchUserProfile() async {
     do {
@@ -203,6 +199,7 @@ Task {
     await fetchUserProfile()
 }
 ```
+___
 
 ### Advanced: Custom Request Interceptor
 
