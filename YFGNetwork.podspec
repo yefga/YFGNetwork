@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'YFGNetwork'
-  s.version          = '0.1.0'
+  s.version          = '0.0.1'
   s.summary          = 'A modern, clean, and testable networking layer for iOS and macOS.'
 
   s.description      = "
@@ -15,7 +15,7 @@ Features include request interception, response validation, retry policies, and 
   s.ios.deployment_target = '13.0'
   s.osx.deployment_target = '10.15'
   
-  s.swift_version = '5.5'
+  s.swift_version = '6.1'
 
   # This assumes your source files are located in a "Sources/YFGNetwork" directory.
   # Adjust this path if your project structure is different.
