@@ -37,7 +37,7 @@ public enum YFGNetworkError: LocalizedError {
     case tooManyRequests
     case internalServerError
     case serviceUnavailable
-    case badResponse(statusCode: Int)
+    case badResponse(statusCode: Int?)
     case decodingFailed(Error)
     case encodingFailed(Error)
     case requestFailed(Error)
@@ -68,7 +68,7 @@ public enum YFGNetworkError: LocalizedError {
         case .serviceUnavailable:
             return "Service unavailable"
         case .badResponse(let statusCode):
-            return "Bad response with status code: \(statusCode)"
+            return "Bad response with status code: \(statusCode ?? -1)"
         case .decodingFailed(let error):
             return "Decoding failed: \(error.localizedDescription)"
         case .encodingFailed(let error):
@@ -82,5 +82,59 @@ public enum YFGNetworkError: LocalizedError {
         case .unknown:
             return "Unknown error occurred"
         }
+    }
+    
+    static func mapStatusCodeToNetworkError(_ statusCode: Int) -> Self {
+        switch statusCode {
+        case 400:
+            return .badRequest
+        case 401:
+            return .unauthorized
+        case 403:
+            return .forbidden
+        case 404:
+            return .notFound
+        case 408:
+            return .requestTimeout
+        case 429:
+            return .tooManyRequests
+        case 500:
+            return .internalServerError
+        case 503:
+            return .serviceUnavailable
+        default:
+            return .badResponse(statusCode: statusCode)
+        }
+    }
+}
+
+public typealias YFGDecodeSendable = Decodable & Sendable
+
+/// Generic error model that can parse server error responses
+public struct YFGErrorModel: Error {
+    public var errorCode: Int?
+    public var errorMessage: YFGNetworkError?
+    public var errorData: Data?
+    
+    public init(
+        errorCode: Int? = nil,
+        errorMessage: YFGNetworkError? = nil,
+        errorData: Data? = nil
+    ) {
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
+        self.errorData = errorData
+    }
+    
+    public func mappedToModel<T: Decodable>(_ type: T.Type) throws -> T {
+        if let data = errorData {
+            return try JSONDecoder().decode(T.self, from: data)
+        } else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "No data available to decode"))
+        }
+    }
+    
+    public var errorDescription: String? {
+        return errorMessage?.errorDescription ?? "Unknown error occurred"
     }
 }
