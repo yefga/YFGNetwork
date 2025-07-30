@@ -8,7 +8,9 @@
 import Foundation
 import Network
 
-public final class YFGNetworkService {
+typealias Response = (Data, URLResponse)
+
+public final class YFGNetwork {
 
     // MARK: - Dependencies
     
@@ -50,10 +52,13 @@ public final class YFGNetworkService {
         self.networkMonitor = networkMonitor
     }
     
-    private func performRequest(for endpoint: YFGEndpoint) async throws -> (Data, URLResponse) {
+    private func performRequest<E: Decodable>(
+        for endpoint: YFGEndpoint,
+        errorType: E.Type
+    ) async -> Result<Response, YFGErrorModel> {
         let retryPolicy = endpoint.retryPolicy
-        var lastError: Error = YFGNetworkError.unknown
-        
+        var lastError: YFGErrorModel = YFGErrorModel(errorMessage: .unknown)
+
         for attempt in 1...retryPolicy.maxAttempts {
             do {
                 await networkMonitor.waitForConnection()
@@ -69,15 +74,32 @@ public final class YFGNetworkService {
                 let (data, response) = try await urlSession.data(for: request)
                 logger.log(response: response, data: data, error: nil, for: endpoint)
                 
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    throw YFGNetworkError.badResponse(statusCode: -1)
-                }
-                try validator.validate(httpResponse)
+                let httpResponse = (response as? HTTPURLResponse)
+                let httpStatusCode: Int = httpResponse?.statusCode ?? -1
                 
-                return (data, response)
+                switch httpStatusCode {
+                case 200...299:
+                    try validator.validate(httpResponse)
+                    return .success((data, response))
+                    
+                default:
+                    let networkError = YFGNetworkError.mapStatusCodeToNetworkError(httpStatusCode)
+                    let errorModel = YFGErrorModel(
+                        errorCode: httpStatusCode,
+                        errorMessage: networkError,
+                        errorData: data
+                    )
+                    return .failure(errorModel)
+                }
+                
                 
             } catch {
-                lastError = error
+                if let networkError = error as? YFGNetworkError {
+                    lastError = YFGErrorModel(errorMessage: networkError)
+                } else {
+                    lastError = YFGErrorModel(errorMessage: mapToNetworkError(error))
+                }
+                
                 logger.log(response: nil, data: nil, error: error, for: endpoint)
                 
                 guard attempt < retryPolicy.maxAttempts else { break }
@@ -86,8 +108,7 @@ public final class YFGNetworkService {
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
             }
         }
-        
-        throw mapToNetworkError(lastError)
+        return .failure(lastError)
     }
     
     private func calculateDelay(for attempt: Int, policy: YFGRetryPolicy) -> TimeInterval {
@@ -118,18 +139,44 @@ public final class YFGNetworkService {
 }
 
 @available(iOS 13.0, macOS 10.15, *)
-extension YFGNetworkService: YFGNetworkProtocol {
-    public func request<T: Decodable>(_ endpoint: YFGEndpoint) async throws -> T {
-        let (data, _) = try await performRequest(for: endpoint)
-        do {
-            return try jsonDecoder.decode(T.self, from: data)
-        } catch {
-            throw YFGNetworkError.decodingFailed(error)
+extension YFGNetwork: YFGNetworkProtocol {
+    public func request<T: Decodable, E: Decodable>(
+            _ endpoint: YFGEndpoint,
+            responseType: T.Type,
+            errorType: E.Type
+    ) async -> Result<T, YFGErrorModel> {
+        let result = await performRequest(for: endpoint, errorType: errorType)
+        switch result {
+        case .success(let response):
+            do {
+                let decodedResponse = try jsonDecoder.decode(responseType, from: response.0)
+                return .success(decodedResponse)
+            } catch {
+                let httpResponse = (response.1 as? HTTPURLResponse)
+
+                return .failure(
+                    YFGErrorModel(
+                        errorCode: httpResponse?.statusCode,
+                        errorMessage: .decodingFailed(error)
+                    )
+                )
+            }
+        case .failure(let error):
+            return .failure(error)
         }
+        
     }
     
     public func data(_ endpoint: YFGEndpoint) async throws -> Data {
-        let (data, _) = try await performRequest(for: endpoint)
+        await networkMonitor.waitForConnection()
+        var request = try URLRequest.from(endpoint: endpoint, in: environment)
+        if endpoint.needsInterceptor {
+            request = try await interceptor.adapt(request)
+        }
+        
+        logger.log(request: request)
+        let (data, response) = try await urlSession.data(for: request)
+        logger.log(response: response, data: data, error: nil, for: endpoint)
         return data
     }
     

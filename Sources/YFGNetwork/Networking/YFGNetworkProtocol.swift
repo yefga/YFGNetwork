@@ -29,8 +29,16 @@ import Foundation
 /// Defines the contract for a network service, making it easy to mock for testing.
 @available(iOS 13.0, macOS 10.15, *)
 public protocol YFGNetworkProtocol {
-    /// Performs a network request and decodes the response
-    func request<T: Decodable>(_ endpoint: YFGEndpoint) async throws -> T
+    /**
+        Performs a network request and decodes the response
+     
+    */
+    func request<T: Decodable, E: Decodable>(
+        _ endpoint: YFGEndpoint,
+        responseType: T.Type,
+        errorType: E.Type
+    ) async -> Result<T, YFGErrorModel>
+
     
     /// Downloads a file to the specified destination
     func download(_ endpoint: YFGEndpoint, to destination: URL) async throws -> URL

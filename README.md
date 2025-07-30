@@ -15,8 +15,7 @@ A modern, clean, and testable networking layer for iOS and macOS, built with Swi
 
 ## Overview
 
-YFGNetwork is a powerful yet lightweight networking framework designed to abstract away the complexities of `URLSession`. It provides a type-safe way to define API endpoints and handles common networking tasks like request interception, response validation, and automatic retries. Its protocol-oriented design makes it incredibly easy to test and extend.
-
+YFGNetwork is a lightweight yet powerful networking framework built with Domain-Driven Design in mind. It’s designed to help you focus on building features, not fighting boilerplate. With type-safe API definitions and built-in support for things like request interception, response validation, and automatic retries, it takes care of the boring stuff so you can move faster. Thanks to its protocol-oriented architecture, it’s also easy to test, customize, and scale as your app grows.
 
 ## Features
 
@@ -71,7 +70,7 @@ pod 'YFGNetwork'
 
 Then, run `pod install`.
 
-## How to Use
+## How to Use see
 
 Using YFGNetwork involves four main steps: defining your environment, defining your endpoints, creating the service, and making requests.
 
@@ -93,7 +92,7 @@ struct APIEnvironment: YFGEnvironment {
 
 Create an enum that conforms to `YFGEndpoint`. This is where you define all the specifics for each API call.
 
-```
+```swift
 import YFGNetwork
 
 // Next, define the endpoints.
@@ -127,32 +126,25 @@ extension MyAPI: YFGEndpoint {
     var task: YFGTask {
         switch self {
         case .getPublicPosts, .getUserProfile:
-            // No parameters or body needed for these GET requests.
             return .requestPlain
         case .updateUser(_, let name):
-            // Send an encodable object as the request body.
             let params = ["name": name]
             return .requestJSONEncodable(params)
         }
     }
 
     var headers: [String: String]? {
-        // You can provide default headers for all endpoints.
         return ["Content-Type": "application/json"]
     }
     
     var needsInterceptor: Bool {
         switch self {
         case .getPublicPosts:
-            // This is a public endpoint and does not need an auth token.
             return false
         case .getUserProfile, .updateUser:
-            // These endpoints require authentication.
             return true
         }
-    }
-    
-    // You can also override retryPolicy, cachePolicy, etc. here if needed.
+    }    
 }
 ```
 
@@ -160,44 +152,39 @@ extension MyAPI: YFGEndpoint {
 
 Instantiate `YFGNetworkService` with your environment. You can also inject custom interceptors, loggers, or validators.
 
-```
+```swift
 import YFGNetwork
 
-let networkService = YFGNetworkService(environment: APIEnvironment())
+let networkService = YFGNetwork(environment: APIEnvironment())
 ```
 
 ### 4. Make a Request
 
 First, define the data models you expect from the API.
-```
+```swift
 struct UserProfile: Decodable {
-    let id: String
-    let name: String
-    let email: String
+    let id: String?
+    let name: String?
+    let email: String?
 }
 
-struct PublicPost: Decodable {
-    let id: Int
-    let title: String
-    let body: String
+struct ErrorResponse: Decodable {
+    let message: String?
 }
 ```
 Use an `async` function to call the service and handle the response.
-```
-func fetchUserProfile() async {
-    do {
-        let userProfile: UserProfile = try await networkService.request(.getUserProfile(userId: "123"))
-        print("Successfully fetched user: \(userProfile.name)")
-    } catch {
-        // The error will be a YFGNetworkError, so you can handle it specifically.
-        print("Failed to fetch user profile: \(error.localizedDescription)")
+```swift
+    let result = await network.request(Endpoint.getUserProfile), responseType: UserProfile.self, errorType: ErrorResponse.self)
+        
+    switch result {
+        case .success(let dto):
+            return .success(dto)
+        case .failure(let error):
+            if let model = try? error.mappedToModel(ErrorResponse.self) {
+                return .failure(model)
+        }
+        return .failure(.init())
     }
-}
-
-// Call the async function
-Task {
-    await fetchUserProfile()
-}
 ```
 ___
 
@@ -205,7 +192,7 @@ ___
 
 For tasks like refreshing authentication tokens, you can provide a custom interceptor.
 
-```
+```swift
 class TokenInterceptor: YFGRequestInterceptor {
     private let authManager: AuthManager // Your class that handles token storage
 
@@ -229,3 +216,5 @@ class TokenInterceptor: YFGRequestInterceptor {
 
 YFGNetwork is released under the MIT license. See [LICENSE](https://github.com/yefga/YFGNetwork/tree/development) for details.
 
+### Contribution
+YFGNetwork is fully open-source. All suggestions and contributions are welcome!

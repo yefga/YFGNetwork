@@ -40,7 +40,7 @@ public protocol YFGResponseValidator {
     ///   - response: The `HTTPURLResponse` received from the server.
     ///   - data: The raw `Data` received from the server.
     /// - Throws: A `YFGNetworkError` if the response is considered invalid.
-    func validate(_ response: HTTPURLResponse) throws
+    func validate(_ response: HTTPURLResponse?) throws
 }
 
 
@@ -52,9 +52,9 @@ public class DefaultResponseValidator: YFGResponseValidator {
     
     public init() {}
     
-    public func validate(_ response: HTTPURLResponse) throws {
-        switch response.statusCode {
-        case 200...299:
+    public func validate(_ response: HTTPURLResponse?) throws {
+        switch response?.statusCode ?? 0 {
+        case (200...299):
             // Success, no error thrown.
             return
         case 400:
@@ -74,7 +74,7 @@ public class DefaultResponseValidator: YFGResponseValidator {
         case 503:
             throw YFGNetworkError.serviceUnavailable
         default:
-            throw YFGNetworkError.badResponse(statusCode: response.statusCode)
+            throw YFGNetworkError.badResponse(statusCode: response?.statusCode)
         }
     }
 }

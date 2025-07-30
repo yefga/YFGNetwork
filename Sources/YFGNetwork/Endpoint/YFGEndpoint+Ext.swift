@@ -44,7 +44,3 @@ public extension YFGEndpoint {
         return true
     }
 }
-
-// MARK: - Supporting Types
-
-public struct EmptyResponse: Decodable {}
