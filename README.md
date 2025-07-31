@@ -56,7 +56,7 @@ Or, add it to your `Package.swift`:
 
 ```
 dependencies: [
-    .package(url: "[https://github.com/Yefga/YFGNetwork.git](https://github.com/Yefga/YFGNetwork.git)", from: "1.0.0")
+    .package(url: "[https://github.com/Yefga/YFGNetwork.git](https://github.com/Yefga/YFGNetwork.git)", from: "0.0.1")
 ]
 ```
 
