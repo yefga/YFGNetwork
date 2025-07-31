@@ -54,7 +54,7 @@ You can add YFGNetwork to your project by adding it as a package dependency in X
 
 Or, add it to your `Package.swift`:
 
-```
+```swift
 dependencies: [
     .package(url: "[https://github.com/Yefga/YFGNetwork.git](https://github.com/Yefga/YFGNetwork.git)", from: "0.0.1")
 ]
@@ -64,7 +64,7 @@ dependencies: [
 
 To install with CocoaPods, add the following line to your `Podfile`:
 
-```
+```ruby
 pod 'YFGNetwork'
 ```
 
@@ -78,7 +78,7 @@ Using YFGNetwork involves four main steps: defining your environment, defining y
 
 Create a struct that conforms to `YFGEnvironment` to specify the base URL for your API.
 
-```
+```swift
 import YFGNetwork
 
 struct APIEnvironment: YFGEnvironment {
@@ -95,7 +95,6 @@ Create an enum that conforms to `YFGEndpoint`. This is where you define all the 
 ```swift
 import YFGNetwork
 
-// Next, define the endpoints.
 enum MyAPI {
     case getPublicPosts
     case getUserProfile(userId: String)
@@ -194,16 +193,14 @@ For tasks like refreshing authentication tokens, you can provide a custom interc
 
 ```swift
 class TokenInterceptor: YFGRequestInterceptor {
-    private let authManager: AuthManager // Your class that handles token storage
+    private let authManager: AuthManager
 
     init(authManager: AuthManager) {
         self.authManager = authManager
     }
 
     func adapt(_ request: URLRequest) async throws -> URLRequest {
-        var mutableRequest = request
-        
-        // Get a valid token, potentially refreshing it if it's expired.
+        var mutableRequest = request        
         let token = await authManager.getValidToken()
         
         mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -213,8 +210,7 @@ class TokenInterceptor: YFGRequestInterceptor {
 ```
 
 ## License
-
-YFGNetwork is released under the MIT license. See [LICENSE](https://github.com/yefga/YFGNetwork/tree/development) for details.
+YFGNetwork is released under the MIT license. See [LICENSE](https://github.com/yefga/YFGNetwork/blob/main/LICENSE) for details.
 
 ### Contribution
 YFGNetwork is fully open-source. All suggestions and contributions are welcome!
