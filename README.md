@@ -15,7 +15,7 @@ A modern, clean, and testable networking layer for iOS and macOS, built with Swi
 
 ## Overview
 
-YFGNetwork is a lightweight yet powerful networking framework built with Domain-Driven Design in mind. It’s designed to help you focus on building features, not fighting boilerplate. With type-safe API definitions and built-in support for things like request interception, response validation, and automatic retries, it takes care of the boring stuff so you can move faster. Thanks to its protocol-oriented architecture, it’s also easy to test, customize, and scale as your app grows.
+YFGNetwork is a lightweight yet powerful networking framework built with Domain-Driven Design in mind. It’s designed to help you focus on building features, not fighting boilerplate. With type-safe API definitions and built-in support for things like request interception, response validation, and automatic retries, it takes care of the boring stuff so you can move faster.
 
 ## Features
 
@@ -70,12 +70,9 @@ pod 'YFGNetwork'
 
 Then, run `pod install`.
 
-## How to Use see
-
-Using YFGNetwork involves four main steps: defining your environment, defining your endpoints, creating the service, and making requests.
+## How to Use
 
 ### 1. Define Your API Environment
-
 Create a struct that conforms to `YFGEnvironment` to specify the base URL for your API.
 
 ```swift
@@ -187,7 +184,7 @@ Use an `async` function to call the service and handle the response.
 ```
 ___
 
-### Advanced: Custom Request Interceptor
+### Advanced: Custom Request Interceptor (Optional)
 
 For tasks like refreshing authentication tokens, you can provide a custom interceptor.
 
